@@ -127,6 +127,7 @@ def find_objects(mask):
 
     return objects
 
+#바운딩 박스, 중심 좌표 표시
 def draw_detection(frame,objects):
     #화면의 너비와 높이를 구한다.
     #frame.shape는 height,width,channels를 반환하기 때문에 슬라이싱 한다.
@@ -140,12 +141,13 @@ def draw_detection(frame,objects):
         cv2.circle(frame,(cx,cy),1,(0,0,255),-1)
 
         str_center = f"({cx},{cy})"
+        #화면 밖으로 나가도 좌표표시 안잘리도록 구현
         text_x = cx
         text_y = cy - 10    #점(cv2.circle)과 거의 닿을거 같아서 y를 살짝 위로 띄움
-
+        #x좌표의 텍스트가 120을 더했을때 가로보다 크면 x좌표 텍스트를 120 빼서 안잘리도록 했다.
         if text_x + 120 > width:
             text_x = text_x - 120
-        
+        #y좌표 텍스트가 20보다 작은 높이에 있어도 안잘리도록 구현
         if text_y < 20:
             text_y = 20
 
