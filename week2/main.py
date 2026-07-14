@@ -48,9 +48,7 @@ def PlayWebCam(cap):
         
         avg_fps = sum(fps_collector) / len(fps_collector)
 
-        mask = create_mask(frame)
-        objects = find_objects(mask)
-        print(objects)  #튜플리스트 잘 생성됐는지 확인용 디버깅코드
+        mask = detect(frame)
 
         draw_fps(frame,avg_fps)
         cv2.imshow('Result',combine_frames(frame,mask))
@@ -128,6 +126,38 @@ def find_objects(mask):
         objects.append(tuple_data)
 
     return objects
+
+def draw_detection(frame,objects):
+    #화면의 너비와 높이를 구한다.
+    #frame.shape는 height,width,channels를 반환하기 때문에 슬라이싱 한다.
+    height,width = frame.shape[:2]
+    for obj in objects:
+        # 튜플 리스트의 데이터를 언패킹해서 각각의 변수에 저장
+        cx,cy,area,(x,y,w,h) = obj
+
+        # 블로그에서 frame 다음에 (x,y,w,h)를 넣어도 된다는걸 발견했다.
+        cv2.rectangle(frame,(x,y,w,h),(0,255,0),3)
+        cv2.circle(frame,(cx,cy),1,(0,0,255),-1)
+
+        str_center = f"({cx},{cy})"
+        text_x = cx
+        text_y = cy - 10    #점(cv2.circle)과 거의 닿을거 같아서 y를 살짝 위로 띄움
+
+        if text_x + 120 > width:
+            text_x = text_x - 120
+        
+        if text_y < 20:
+            text_y = 20
+
+        cv2.putText(frame,str_center,(text_x,text_y),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255))
+        print(f"중심: ({cx},{cy}) | 면적: {area}px^2")
+
+def detect(frame):
+    mask = create_mask(frame)
+    objects = find_objects(mask)
+    draw_detection(frame,objects)
+
+    return mask
 
 def main():
     cap = OpenCam()
